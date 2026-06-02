@@ -1,4 +1,4 @@
-name: Build and Commit
+name: git-hub-profile
 
 on:
   workflow_dispatch:
