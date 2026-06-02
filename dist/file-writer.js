@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.writeFile = exports.OUTPUT_FOLDER = void 0;
 const fs_1 = require("fs");
-exports.OUTPUT_FOLDER = './profile-3d-contrib';
+exports.OUTPUT_FOLDER = './generated';
 const writeFile = (fileName, content) => {
     (0, fs_1.mkdirSync)(exports.OUTPUT_FOLDER, { recursive: true });
     (0, fs_1.writeFileSync)(`${exports.OUTPUT_FOLDER}/${fileName}`, content);
