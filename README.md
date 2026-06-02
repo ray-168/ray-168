@@ -1,1 +1,1 @@
-![](./profile-3d-contrib/profile-night-green.svg)
+![](./generated/profile-night-green.svg)
