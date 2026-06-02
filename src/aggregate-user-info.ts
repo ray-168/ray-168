@@ -50,24 +50,59 @@ export const aggregateUserInfo = (
             date: new Date(week.date),
         }));
     const contributesLanguage: { [language: string]: type.LangInfo } = {};
-    user.contributionsCollection.commitContributionsByRepository
-        .filter((repo) => repo.repository.primaryLanguage)
-        .forEach((repo) => {
-            const language = repo.repository.primaryLanguage?.name || '';
-            const color = repo.repository.primaryLanguage?.color || OTHER_COLOR;
-            const contributions = repo.contributions.totalCount;
+    const addLanguage = (
+        language: string,
+        color: string,
+        contributions: number,
+    ) => {
+        const info = contributesLanguage[language];
+        if (info) {
+            info.contributions += contributions;
+        } else {
+            contributesLanguage[language] = {
+                language: language,
+                color: color,
+                contributions: contributions,
+            };
+        }
+    };
 
-            const info = contributesLanguage[language];
-            if (info) {
-                info.contributions += contributions;
-            } else {
-                contributesLanguage[language] = {
-                    language: language,
-                    color: color,
-                    contributions: contributions,
-                };
+    user.contributionsCollection.commitContributionsByRepository.forEach(
+        (repo) => {
+            const commits = repo.contributions.totalCount;
+            const languageEdges = repo.repository.languages?.edges || [];
+            const languageItems = languageEdges
+                .filter((edge) => edge && edge.node && edge.node.name)
+                .map((edge) => ({
+                    name: edge.node!.name,
+                    color: edge.node!.color || OTHER_COLOR,
+                    size: edge.size,
+                }));
+
+            if (languageItems.length > 0) {
+                const totalSize = languageItems.reduce(
+                    (sum, item) => sum + item.size,
+                    0,
+                );
+                if (totalSize > 0) {
+                    languageItems.forEach((item) => {
+                        addLanguage(
+                            item.name,
+                            item.color,
+                            (commits * item.size) / totalSize,
+                        );
+                    });
+                    return;
+                }
             }
-        });
+
+            if (repo.repository.primaryLanguage) {
+                const language = repo.repository.primaryLanguage.name;
+                const color = repo.repository.primaryLanguage.color || OTHER_COLOR;
+                addLanguage(language, color, commits);
+            }
+        },
+    );
     const languages: Array<type.LangInfo> = Object.values(
         contributesLanguage,
     ).sort((obj1, obj2) => -compare(obj1.contributions, obj2.contributions));

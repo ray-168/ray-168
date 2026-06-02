@@ -4,7 +4,7 @@ import * as create from './create-svg';
 import * as f from './file-writer';
 import * as r from './settings-reader';
 import * as client from './github-graphql';
-
+import 'dotenv/config';
 export const main = async (): Promise<void> => {
     try {
         const token = process.env.GITHUB_TOKEN;
